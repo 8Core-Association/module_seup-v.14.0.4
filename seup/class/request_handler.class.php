@@ -119,6 +119,12 @@ class Request_Handler
         throw new Exception("Failed to get new case ID: " . $db->lasterror());
       }
 
+      // Create predmet directory with new naming structure
+      $created_path = Predmet_helper::createPredmetDirectory($predmet_id, $db, $conf);
+      if (!$created_path) {
+        throw new Exception("Failed to create predmet directory");
+      }
+
       // Insert tag associations if tags are selected
       if (!empty($tags) && is_array($tags)) {
         foreach ($tags as $tag_id) {
@@ -307,14 +313,6 @@ class Request_Handler
       $result = $ecmfile->create($user);
       if ($result < 0) {
         throw new Exception($ecmfile->error);
-      }
-
-      // Create predmet directory with new naming structure after successful creation
-      if ($result > 0) {
-        $predmet_id = $db->last_insert_id(MAIN_DB_PREFIX . 'a_predmet', 'ID_predmeta');
-        if ($predmet_id) {
-          Predmet_helper::createPredmetDirectory($predmet_id, $db, $conf);
-        }
       }
 
       setEventMessages($langs->trans("FileUploadSuccess"), null, 'mesgs');
