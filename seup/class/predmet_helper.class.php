@@ -65,9 +65,7 @@ class Predmet_helper
                 ID_interna_oznaka_korisnika int(11) NOT NULL,
                 ID_klasifikacijske_oznake int(11) NOT NULL,
                 vrijeme_cuvanja int(11) NOT NULL,
-                stranka varchar(255) DEFAULT NULL,
                 tstamp_created timestamp DEFAULT CURRENT_TIMESTAMP,
-                datum_otvaranja_stranke timestamp NULL DEFAULT NULL,
                 PRIMARY KEY (ID_predmeta),
                 UNIQUE KEY unique_predmet (klasa_br, sadrzaj, dosje_broj, godina, predmet_rbr),
                 KEY fk_ustanova_predmet (ID_ustanove),
@@ -353,12 +351,12 @@ class Predmet_helper
     /**
      * Insert new predmet with new folder structure
      */
-    public static function insertPredmet($db, $klasa_br, $sadrzaj, $dosje_br, $god, $rbr_predmeta, $naziv, $id_ustanove, $id_zaposlenik, $id_klasifikacijske_oznake, $vrijeme_cuvanja, $stranka, $datum_otvaranja)
+    public static function insertPredmet($db, $klasa_br, $sadrzaj, $dosje_br, $god, $rbr_predmeta, $naziv, $id_ustanove, $id_zaposlenik, $id_klasifikacijske_oznake, $vrijeme_cuvanja)
     {
         $sql = "INSERT INTO " . MAIN_DB_PREFIX . "a_predmet (
                     klasa_br, sadrzaj, dosje_broj, godina, predmet_rbr, naziv_predmeta,
                     ID_ustanove, ID_interna_oznaka_korisnika, ID_klasifikacijske_oznake,
-                    vrijeme_cuvanja, stranka, tstamp_created, datum_otvaranja_stranke
+                    vrijeme_cuvanja, tstamp_created
                 ) VALUES (
                     '" . $db->escape($klasa_br) . "',
                     '" . $db->escape($sadrzaj) . "',
@@ -370,9 +368,7 @@ class Predmet_helper
                     " . (int)$id_zaposlenik . ",
                     " . (int)$id_klasifikacijske_oznake . ",
                     " . (int)$vrijeme_cuvanja . ",
-                    " . ($stranka ? "'" . $db->escape($stranka) . "'" : "NULL") . ",
-                    NOW(),
-                    " . ($datum_otvaranja ? "'" . $db->escape($datum_otvaranja) . "'" : "NULL") . "
+                    NOW()
                 )";
 
         return $db->query($sql);

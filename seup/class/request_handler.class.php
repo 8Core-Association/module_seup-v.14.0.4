@@ -106,9 +106,7 @@ class Request_Handler
         $id_ustanove,
         $id_zaposlenik,
         $id_klasifikacijske_oznake,
-        $vrijeme_cuvanja,
-        $stranka,
-        $datum_otvaranja
+        $vrijeme_cuvanja
       );
 
       if ($db_query === false) {
@@ -142,13 +140,11 @@ class Request_Handler
         $sql = "INSERT INTO " . MAIN_DB_PREFIX . "a_predmet_stranka (
                     ID_predmeta, 
                     fk_soc, 
-                    role,
-                    date_stranka_opened
+                    role
                 ) VALUES (
                     " . ((int)$predmet_id) . ",
                     " . ((int)$soc_id) . ",
-                    'creator',
-                    " . ($datum_otvaranja ? "'" . $db->escape($datum_otvaranja) . "'" : "NULL") . "
+                    'creator'
                 )";
 
         $res = $db->query($sql);
