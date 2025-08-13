@@ -688,7 +688,7 @@ document.addEventListener("DOMContentLoaded", function() {
         confirmBtn.classList.add('seup-loading');
         
         const formData = new FormData();
-        formData.append('action', 'restore_predmet');
+        formData.append('action', 'delete_archive');
         formData.append('arhiva_id', currentRestoreId);
         
         fetch('arhiva.php', {
