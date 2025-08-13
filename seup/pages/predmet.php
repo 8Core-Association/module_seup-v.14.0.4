@@ -150,6 +150,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
+    // Handle refresh documents request
+    if (isset($_POST['action']) && GETPOST('action') === 'refresh_documents') {
+        // Just continue with normal page rendering to return updated HTML
+        // The JavaScript will extract the documents section from the response
+    }
+
     // File existence check
     if ($_SERVER['REQUEST_METHOD'] === 'GET' && GETPOST('action') === 'check_file_exists') {
         ob_end_clean();
@@ -526,7 +532,8 @@ document.addEventListener("DOMContentLoaded", function() {
                             uploadProgress.style.display = 'none';
                             document.getElementById("documentInput").value = "";
                             showMessage('Dokument je uspješno uploadovan!', 'success');
-                            window.location.reload();
+                            // Refresh only the documents tab instead of full page reload
+                            refreshDocumentsList();
                         }, 1000);
                     } else {
                         throw new Error('Upload failed');
@@ -541,6 +548,104 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
+    // Function to refresh documents list
+    function refreshDocumentsList() {
+        // Create a form to refresh the documents
+        const refreshForm = document.createElement('form');
+        refreshForm.method = 'POST';
+        refreshForm.style.display = 'none';
+        
+        const actionInput = document.createElement('input');
+        actionInput.type = 'hidden';
+        actionInput.name = 'action';
+        actionInput.value = 'refresh_documents';
+        
+        const caseIdInput = document.createElement('input');
+        caseIdInput.type = 'hidden';
+        caseIdInput.name = 'case_id';
+        caseIdInput.value = <?php echo $caseId; ?>;
+        
+        refreshForm.appendChild(actionInput);
+        refreshForm.appendChild(caseIdInput);
+        document.body.appendChild(refreshForm);
+        
+        // Submit form to get updated documents list
+        fetch('', {
+            method: 'POST',
+            body: new FormData(refreshForm)
+        })
+        .then(response => response.text())
+        .then(html => {
+            // Extract the documents table from the response
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const newDocumentsContent = doc.querySelector('#tab-dokumenti');
+            
+            if (newDocumentsContent) {
+                const currentTab = document.getElementById('tab-dokumenti');
+                if (currentTab) {
+                    // Update only the documents content
+                    const documentsSection = currentTab.querySelector('.seup-upload-section').nextElementSibling;
+                    const newDocumentsSection = newDocumentsContent.querySelector('.seup-upload-section').nextElementSibling;
+                    
+                    if (documentsSection && newDocumentsSection) {
+                        documentsSection.innerHTML = newDocumentsSection.innerHTML;
+                        
+                        // Re-add file type icons
+                        addFileTypeIcons();
+                        
+                        // Update statistics
+                        updateStatistics();
+                    }
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error refreshing documents:', error);
+            // Fallback to full page reload
+            window.location.reload();
+        })
+        .finally(() => {
+            document.body.removeChild(refreshForm);
+        });
+    }
+
+    // Function to add file type icons to document table
+    function addFileTypeIcons() {
+        document.querySelectorAll('.seup-documents-table tbody tr').forEach(row => {
+            const nameCell = row.querySelector('td:first-child');
+            if (nameCell && !nameCell.querySelector('.seup-file-icon')) {
+                const filename = nameCell.textContent.trim();
+                const extension = filename.split('.').pop().toLowerCase();
+                
+                let iconClass = 'default';
+                let iconName = 'fa-file';
+                
+                if (['pdf'].includes(extension)) {
+                    iconClass = 'pdf';
+                    iconName = 'fa-file-pdf';
+                } else if (['doc', 'docx'].includes(extension)) {
+                    iconClass = 'doc';
+                    iconName = 'fa-file-word';
+                } else if (['xls', 'xlsx'].includes(extension)) {
+                    iconClass = 'xls';
+                    iconName = 'fa-file-excel';
+                } else if (['jpg', 'jpeg', 'png'].includes(extension)) {
+                    iconClass = 'img';
+                    iconName = 'fa-file-image';
+                }
+                
+                nameCell.innerHTML = `
+                    <div class="seup-file-icon ${iconClass}">
+                        <i class="fas ${iconName}"></i>
+                    </div>
+                    <span class="seup-document-name">${filename}</span>
+                `;
+                nameCell.style.display = 'flex';
+                nameCell.style.alignItems = 'center';
+            }
+        });
+    }
     // PDF generation
     if (pdfButton) {
         pdfButton.addEventListener("click", function() {
@@ -627,39 +732,7 @@ document.addEventListener("DOMContentLoaded", function() {
     updateStatistics();
 
     // Add file type icons to document table
-    document.querySelectorAll('.seup-documents-table tbody tr').forEach(row => {
-        const nameCell = row.querySelector('td:first-child');
-        if (nameCell) {
-            const filename = nameCell.textContent.trim();
-            const extension = filename.split('.').pop().toLowerCase();
-            
-            let iconClass = 'default';
-            let iconName = 'fa-file';
-            
-            if (['pdf'].includes(extension)) {
-                iconClass = 'pdf';
-                iconName = 'fa-file-pdf';
-            } else if (['doc', 'docx'].includes(extension)) {
-                iconClass = 'doc';
-                iconName = 'fa-file-word';
-            } else if (['xls', 'xlsx'].includes(extension)) {
-                iconClass = 'xls';
-                iconName = 'fa-file-excel';
-            } else if (['jpg', 'jpeg', 'png'].includes(extension)) {
-                iconClass = 'img';
-                iconName = 'fa-file-image';
-            }
-            
-            nameCell.innerHTML = `
-                <div class="seup-file-icon ${iconClass}">
-                    <i class="fas ${iconName}"></i>
-                </div>
-                <span class="seup-document-name">${filename}</span>
-            `;
-            nameCell.style.display = 'flex';
-            nameCell.style.alignItems = 'center';
-        }
-    });
+    addFileTypeIcons();
 });
 
 // Auto-check for file changes when tab is activated
