@@ -144,12 +144,6 @@ llxHeader("", "SEUP - Predmet", '', '', 0, 0, '', '', '', 'mod-seup page-predmet
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     dol_syslog('POST request', LOG_INFO);
     
-    // Handle document deletion FIRST before any output
-    if (isset($_POST['action']) && GETPOST('action') === 'delete_document') {
-        // Clean all output buffers immediately
-        while (ob_get_level() > 0) {
-            ob_end_clean();
-        }
     // Handle document upload
     if (isset($_POST['action']) && GETPOST('action') === 'upload_document') {
         Request_Handler::handleUploadDocument($db, $upload_dir, $langs, $conf, $user);
