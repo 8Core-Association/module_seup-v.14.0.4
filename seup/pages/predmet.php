@@ -161,6 +161,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Just continue with normal page rendering to return updated HTML
         // The JavaScript will extract the documents section from the response
     }
+}
 
     // File existence check
     if ($_SERVER['REQUEST_METHOD'] === 'GET' && GETPOST('action') === 'check_file_exists') {
@@ -771,7 +772,19 @@ document.addEventListener('click', function(e) {
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers.get('content-type'));
+                return response.text();
+            })
+            .then(responseText => {
+                console.log('Raw response:', responseText);
+                try {
+                    return JSON.parse(responseText);
+                } catch (e) {
+                    throw new Error(`Invalid JSON response: ${responseText.substring(0, 200)}...`);
+                }
+            })
             .then(data => {
                 console.log('Delete response:', data);
                 if (data.success) {

@@ -416,7 +416,10 @@ class Request_Handler
    */
   public static function handleDeleteDocument($db, $conf, $user, $langs)
   {
-    ob_end_clean();
+    // Clean any output buffer and set JSON header immediately
+    while (ob_get_level() > 0) {
+        ob_end_clean();
+    }
     header('Content-Type: application/json; charset=utf-8');
 
     try {
@@ -494,6 +497,8 @@ class Request_Handler
         'error' => $e->getMessage()
       ]);
     }
+    
+    // Force exit to prevent any additional output
     exit;
   }
 }
