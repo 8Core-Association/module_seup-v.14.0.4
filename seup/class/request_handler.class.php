@@ -185,13 +185,11 @@ class Request_Handler
   {
     // Uzmi podatke o ID-u predmeta iz POST zahtjeva
     $caseId = GETPOST('case_id', 'int');
-    //if (!dol_check_token(GETPOST('token'))) {
-    //   setEventMessages($langs->trans("ErrorBadCSRFToken"), null, 'errors');
-    //   exit;
-    // }
-    // koristi se samo za upload dokumenata, ne za kreiranje predmeta
-    // Posean folder za upload dokumenta za svaki predmet
-    $predmet_dir = $upload_dir;
+    
+    // Get the correct folder path for this predmet
+    $relative_path = Predmet_helper::getPredmetFolderPath($caseId, $db);
+    $predmet_dir = DOL_DATA_ROOT . '/ecm/' . $relative_path;
+    
     if (!is_dir($predmet_dir)) {
       dol_mkdir($predmet_dir);
     }
@@ -297,12 +295,11 @@ class Request_Handler
       }
 
       // Create ECM record
-      $relativepath = 'SEUP/predmet_' . $caseId . '/';
+      $relativepath = $relative_path;
 
       $ecmfile = new EcmFiles($db);
       $ecmfile->filepath = $relativepath;
       $ecmfile->filename = $filename;
-      $ecmfile->urbroj = $generatedUrbroj;
       $ecmfile->label = $filename;
       $ecmfile->entity = $conf->entity;
       $ecmfile->gen_or_uploaded = 'uploaded';
@@ -314,6 +311,14 @@ class Request_Handler
       $result = $ecmfile->create($user);
       if ($result < 0) {
         throw new Exception($ecmfile->error);
+      }
+
+      // Create predmet directory with new naming structure after successful creation
+      if ($result > 0) {
+        $predmet_id = $db->last_insert_id(MAIN_DB_PREFIX . 'a_predmet', 'ID_predmeta');
+        if ($predmet_id) {
+          Predmet_helper::createPredmetDirectory($predmet_id, $db, $conf);
+        }
       }
 
       setEventMessages($langs->trans("FileUploadSuccess"), null, 'mesgs');
