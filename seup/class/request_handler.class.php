@@ -410,4 +410,76 @@ class Request_Handler
     echo json_encode($results);
     exit;
   }
+
+  /**
+   * Handle document deletion
+   */
+  public static function handleDeleteDocument($db, $conf, $user, $langs)
+  {
+    ob_end_clean();
+    header('Content-Type: application/json; charset=utf-8');
+
+    try {
+      $doc_id = GETPOST('doc_id', 'int');
+      
+      if (!$doc_id) {
+        throw new Exception("Missing document ID");
+      }
+
+      $db->begin();
+
+      // Get document details from ECM
+      require_once DOL_DOCUMENT_ROOT . '/ecm/class/ecmfiles.class.php';
+      $ecmfile = new EcmFiles($db);
+      
+      if ($ecmfile->fetch($doc_id) <= 0) {
+        throw new Exception("Document not found in database");
+      }
+
+      // Build full file path
+      $full_file_path = DOL_DATA_ROOT . '/ecm/' . $ecmfile->filepath . '/' . $ecmfile->filename;
+      
+      dol_syslog("Attempting to delete file: " . $full_file_path, LOG_INFO);
+
+      // Delete physical file
+      $file_deleted = false;
+      if (file_exists($full_file_path)) {
+        if (unlink($full_file_path)) {
+          $file_deleted = true;
+          dol_syslog("Physical file deleted successfully: " . $full_file_path, LOG_INFO);
+        } else {
+          dol_syslog("Failed to delete physical file: " . $full_file_path, LOG_ERR);
+          throw new Exception("Failed to delete physical file");
+        }
+      } else {
+        dol_syslog("Physical file not found: " . $full_file_path, LOG_WARNING);
+        // Continue with database deletion even if file doesn't exist
+      }
+
+      // Delete ECM record from database
+      if ($ecmfile->delete($user) <= 0) {
+        throw new Exception("Failed to delete document from database: " . $ecmfile->error);
+      }
+
+      $db->commit();
+
+      echo json_encode([
+        'success' => true,
+        'message' => 'Dokument je uspješno obrisan',
+        'file_deleted' => $file_deleted,
+        'filename' => $ecmfile->filename
+      ]);
+
+    } catch (Exception $e) {
+      $db->rollback();
+      dol_syslog("Error deleting document: " . $e->getMessage(), LOG_ERR);
+      
+      http_response_code(400);
+      echo json_encode([
+        'success' => false,
+        'error' => $e->getMessage()
+      ]);
+    }
+    exit;
+  }
 }

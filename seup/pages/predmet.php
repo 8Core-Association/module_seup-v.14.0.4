@@ -150,6 +150,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
+    // Handle document deletion
+    if (isset($_POST['action']) && GETPOST('action') === 'delete_document') {
+        Request_Handler::handleDeleteDocument($db, $conf, $user, $langs);
+        exit;
+    }
+
     // Handle refresh documents request
     if (isset($_POST['action']) && GETPOST('action') === 'refresh_documents') {
         // Just continue with normal page rendering to return updated HTML
@@ -733,6 +739,72 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Add file type icons to document table
     addFileTypeIcons();
+});
+
+// Document deletion functionality
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.seup-delete-doc-btn')) {
+        const btn = e.target.closest('.seup-delete-doc-btn');
+        const docId = btn.dataset.docId;
+        const filename = btn.dataset.filename;
+        
+        if (confirm(`Jeste li sigurni da želite obrisati dokument "${filename}"?\n\nOva akcija je nepovratna!`)) {
+            // Add loading state
+            btn.classList.add('seup-loading');
+            btn.disabled = true;
+            
+            const formData = new FormData();
+            formData.append('action', 'delete_document');
+            formData.append('doc_id', docId);
+            
+            fetch('', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Remove row from table with animation
+                    const row = btn.closest('tr');
+                    if (row) {
+                        row.style.animation = 'fadeOut 0.5s ease-out';
+                        setTimeout(() => {
+                            row.remove();
+                            
+                            // Check if table is now empty
+                            const tbody = document.querySelector('.seup-documents-table tbody');
+                            if (tbody && tbody.children.length === 0) {
+                                // Replace table with "no documents" message
+                                const tableContainer = document.querySelector('.seup-documents-table').parentElement;
+                                tableContainer.innerHTML = `
+                                    <div class="seup-no-documents">
+                                        <i class="fas fa-file-alt seup-no-documents-icon"></i>
+                                        <h5 class="seup-no-documents-title">Nema uploadanih dokumenata</h5>
+                                        <p class="seup-no-documents-description">Dodajte prvi dokument za ovaj predmet</p>
+                                    </div>
+                                `;
+                            }
+                            
+                            // Update statistics
+                            updateStatistics();
+                        }, 500);
+                    }
+                    
+                    showMessage(`Dokument "${data.filename}" je uspješno obrisan!`, 'success');
+                } else {
+                    showMessage('Greška pri brisanju: ' + data.error, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Delete error:', error);
+                showMessage('Došlo je do greške pri brisanju dokumenta', 'error');
+            })
+            .finally(() => {
+                btn.classList.remove('seup-loading');
+                btn.disabled = false;
+            });
+        }
+    }
 });
 
 // Auto-check for file changes when tab is activated

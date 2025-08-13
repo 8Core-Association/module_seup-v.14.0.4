@@ -397,6 +397,44 @@
   text-decoration: none;
 }
 
+/* Delete Document Button */
+.seup-delete-doc-btn {
+  background: var(--error-100);
+  color: var(--error-700);
+  border: 1px solid var(--error-200);
+  width: 40px;
+  height: 40px;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+.seup-delete-doc-btn:hover {
+  background: var(--error-200);
+  color: var(--error-800);
+  transform: scale(1.1);
+  border-color: var(--error-300);
+}
+
+.seup-delete-doc-btn.seup-loading {
+  position: relative;
+  color: transparent;
+}
+
+.seup-delete-doc-btn.seup-loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border: 2px solid transparent;
+  border-top: 2px solid var(--error-600);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
 /* Preview Section */
 .seup-preview-container {
   background: var(--neutral-50);

@@ -453,6 +453,12 @@ class Predmet_helper
                 $documentTableHTML .= '<a href="' . $download_url . '" class="btn btn-outline-primary btn-sm" target="_blank">';
                 $documentTableHTML .= '<i class="fas fa-download"></i>';
                 $documentTableHTML .= '</a>';
+                $documentTableHTML .= ' ';
+                $documentTableHTML .= '<button type="button" class="btn btn-outline-danger btn-sm seup-delete-doc-btn" ';
+                $documentTableHTML .= 'data-doc-id="' . $doc->rowid . '" data-filename="' . htmlspecialchars($doc->filename) . '" ';
+                $documentTableHTML .= 'title="Obriši dokument">';
+                $documentTableHTML .= '<i class="fas fa-trash"></i>';
+                $documentTableHTML .= '</button>';
                 $documentTableHTML .= '</td>';
                 $documentTableHTML .= '</tr>';
             }
