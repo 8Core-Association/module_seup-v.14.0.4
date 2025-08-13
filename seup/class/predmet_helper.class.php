@@ -207,7 +207,9 @@ class Predmet_helper
                 $obj->naziv_predmeta
             );
             
-            return 'SEUP/Predmeti/' . $folder_name . '/';
+            // Add year folder structure: SEUP/Predmeti/2025/010-05_25-12_6-Naziv/
+            $full_year = '20' . $obj->godina;
+            return 'SEUP/Predmeti/' . $full_year . '/' . $folder_name . '/';
         }
         
         // Fallback to old format if predmet not found
@@ -506,7 +508,8 @@ class Predmet_helper
             }
 
             // Move documents to archive folder
-            $archive_path = 'SEUP/Arhiva/' . self::generateFolderName(
+            $full_year = '20' . $predmet->godina;
+            $archive_path = 'SEUP/Arhiva/' . $full_year . '/' . self::generateFolderName(
                 $predmet->klasa_br,
                 $predmet->sadrzaj,
                 $predmet->dosje_broj,
@@ -582,7 +585,22 @@ class Predmet_helper
 
             // Get new folder path for restored predmet
             $new_path = self::getPredmetFolderPath($arhiva->ID_predmeta, $db);
-            $archive_path = 'SEUP/Arhiva/' . $arhiva->klasa_predmeta . '/';
+            
+            // Extract year from klasa_predmeta format (001-01/25-01/1)
+            if (preg_match('/\/(\d{2})-/', $arhiva->klasa_predmeta, $matches)) {
+                $year = '20' . $matches[1];
+                $archive_path = 'SEUP/Arhiva/' . $year . '/' . self::generateFolderName(
+                    explode('-', $arhiva->klasa_predmeta)[0],
+                    explode('-', explode('/', $arhiva->klasa_predmeta)[0])[1],
+                    explode('-', explode('/', $arhiva->klasa_predmeta)[1])[1],
+                    $matches[1],
+                    explode('/', $arhiva->klasa_predmeta)[2],
+                    $arhiva->naziv_predmeta
+                ) . '/';
+            } else {
+                // Fallback for old format
+                $archive_path = 'SEUP/Arhiva/' . $arhiva->klasa_predmeta . '/';
+            }
             
             $archive_full_path = DOL_DATA_ROOT . '/ecm/' . $archive_path;
             $new_full_path = DOL_DATA_ROOT . '/ecm/' . $new_path;
@@ -657,7 +675,21 @@ class Predmet_helper
             }
 
             // Delete physical files
-            $archive_path = 'SEUP/Arhiva/' . $arhiva->klasa_predmeta . '/';
+            // Extract year from klasa_predmeta format for proper path
+            if (preg_match('/\/(\d{2})-/', $arhiva->klasa_predmeta, $matches)) {
+                $year = '20' . $matches[1];
+                $archive_path = 'SEUP/Arhiva/' . $year . '/' . self::generateFolderName(
+                    explode('-', $arhiva->klasa_predmeta)[0],
+                    explode('-', explode('/', $arhiva->klasa_predmeta)[0])[1],
+                    explode('-', explode('/', $arhiva->klasa_predmeta)[1])[1],
+                    $matches[1],
+                    explode('/', $arhiva->klasa_predmeta)[2],
+                    $arhiva->naziv_predmeta
+                ) . '/';
+            } else {
+                // Fallback for old format
+                $archive_path = 'SEUP/Arhiva/' . $arhiva->klasa_predmeta . '/';
+            }
             $archive_full_path = DOL_DATA_ROOT . '/ecm/' . $archive_path;
 
             if (is_dir($archive_full_path)) {
