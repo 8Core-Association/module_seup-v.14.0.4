@@ -385,6 +385,9 @@ class Predmet_helper
         // Get the correct folder path for this predmet
         $relative_path = self::getPredmetFolderPath($caseId, $db);
         
+        // Debug: Log the path we're searching for
+        dol_syslog("fetchUploadedDocuments: Searching for documents in path: " . $relative_path, LOG_INFO);
+        
         $sql = "SELECT 
                     ef.rowid,
                     ef.filename,
@@ -398,12 +401,21 @@ class Predmet_helper
                 AND ef.entity = " . $conf->entity . "
                 ORDER BY ef.date_c DESC";
 
+        // Debug: Log the SQL query
+        dol_syslog("fetchUploadedDocuments SQL: " . $sql, LOG_INFO);
+        
         $resql = $db->query($sql);
         $documents = [];
         if ($resql) {
+            $num_rows = $db->num_rows($resql);
+            dol_syslog("fetchUploadedDocuments: Found " . $num_rows . " documents", LOG_INFO);
+            
             while ($obj = $db->fetch_object($resql)) {
+                dol_syslog("fetchUploadedDocuments: Document found - " . $obj->filename . " in " . $obj->filepath, LOG_INFO);
                 $documents[] = $obj;
             }
+        } else {
+            dol_syslog("fetchUploadedDocuments: SQL query failed - " . $db->lasterror(), LOG_ERR);
         }
 
         if (count($documents) > 0) {
