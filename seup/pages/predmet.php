@@ -150,30 +150,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         while (ob_get_level() > 0) {
             ob_end_clean();
         }
-        
-        // Set JSON header immediately
-        header('Content-Type: application/json; charset=utf-8');
-        
-        try {
-            $result = Request_Handler::handleDeleteDocument($db, $conf, $user, $langs);
-            
-            if ($result['success']) {
-                echo json_encode($result);
-            } else {
-                http_response_code(400);
-                echo json_encode($result);
-            }
-        } catch (Exception $e) {
-            dol_syslog("Error in delete document handler: " . $e->getMessage(), LOG_ERR);
-            http_response_code(500);
-            echo json_encode([
-                'success' => false,
-                'error' => 'Server error: ' . $e->getMessage()
-            ]);
-        }
-        exit; // Force exit
-    }
-
     // Handle document upload
     if (isset($_POST['action']) && GETPOST('action') === 'upload_document') {
         Request_Handler::handleUploadDocument($db, $upload_dir, $langs, $conf, $user);
@@ -184,23 +160,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['action']) && GETPOST('action') === 'refresh_documents') {
         // Just continue with normal page rendering to return updated HTML
         // The JavaScript will extract the documents section from the response
-    }
-}
-
-    // File existence check
-    if ($_SERVER['REQUEST_METHOD'] === 'GET' && GETPOST('action') === 'check_file_exists') {
-        ob_end_clean();
-        $file_path = GETPOST('file', 'alphanohtml');
-        if (strpos($file_path, TEMP_DIR_RELATIVE) !== 0) {
-            http_response_code(403);
-            echo json_encode(['error' => 'Invalid file path']);
-            exit;
-        }
-        $full_path = DOL_DATA_ROOT . $file_path;
-        $exists = file_exists($full_path);
-        header('Content-Type: application/json');
-        echo json_encode(['exists' => $exists, 'path' => $full_path]);
-        exit;
     }
 }
 
@@ -769,89 +728,7 @@ document.addEventListener("DOMContentLoaded", function() {
 // Document deletion functionality
 document.addEventListener('click', function(e) {
     if (e.target.closest('.seup-delete-doc-btn')) {
-        const btn = e.target.closest('.seup-delete-doc-btn');
-        const docId = btn.dataset.docId;
-        const filename = btn.dataset.filename;
-        
-        console.log('Delete button clicked:', { docId, filename, btn });
-        
-        if (!docId) {
-            console.error('No doc ID found on button:', btn);
-            showMessage('Greška: Nedostaje ID dokumenta', 'error');
-            return;
-        }
-        
-        if (confirm(`Jeste li sigurni da želite obrisati dokument "${filename}"?\n\nOva akcija je nepovratna!`)) {
-            // Add loading state
-            btn.classList.add('seup-loading');
-            btn.disabled = true;
-            
-            console.log('Sending delete request for doc ID:', docId);
-            
-            const formData = new FormData();
-            formData.append('action', 'delete_document');
-            formData.append('doc_id', docId);
-            
-            fetch('', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => {
-                console.log('Response status:', response.status);
-                console.log('Response headers:', response.headers.get('content-type'));
-                return response.text();
-            })
-            .then(responseText => {
-                console.log('Raw response:', responseText);
-                try {
-                    return JSON.parse(responseText);
-                } catch (e) {
-                    throw new Error(`Invalid JSON response: ${responseText.substring(0, 200)}...`);
-                }
-            })
-            .then(data => {
-                console.log('Delete response:', data);
-                if (data.success) {
-                    // Remove row from table with animation
-                    const row = btn.closest('tr');
-                    if (row) {
-                        row.style.animation = 'fadeOut 0.5s ease-out';
-                        setTimeout(() => {
-                            row.remove();
-                            
-                            // Check if table is now empty
-                            const tbody = document.querySelector('.seup-documents-table tbody');
-                            if (tbody && tbody.children.length === 0) {
-                                // Replace table with "no documents" message
-                                const tableContainer = document.querySelector('.seup-documents-table').parentElement;
-                                tableContainer.innerHTML = `
-                                    <div class="seup-no-documents">
-                                        <i class="fas fa-file-alt seup-no-documents-icon"></i>
-                                        <h5 class="seup-no-documents-title">Nema uploadanih dokumenata</h5>
-                                        <p class="seup-no-documents-description">Dodajte prvi dokument za ovaj predmet</p>
-                                    </div>
-                                `;
-                            }
-                            
-                            // Update statistics
-                            updateStatistics();
-                        }, 500);
-                    }
-                    
-                    showMessage(`Dokument "${data.filename}" je uspješno obrisan!`, 'success');
-                } else {
-                    showMessage('Greška pri brisanju: ' + data.error, 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Delete error:', error);
-                showMessage('Došlo je do greške pri brisanju dokumenta: ' + error.message, 'error');
-            })
-            .finally(() => {
-                btn.classList.remove('seup-loading');
-                btn.disabled = false;
-            });
-        }
+        showMessage('Funkcionalnost brisanja je trenutno onemogućena', 'error');
     }
 });
 
