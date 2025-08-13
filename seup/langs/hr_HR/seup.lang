@@ -1,0 +1,150 @@
+# Translation file
+
+#
+# Generic
+#
+
+# Module label 'ModuleMyModuleName'
+ModuleMyModuleName = MyModule
+# Module description 'ModuleMyModuleDesc'
+ModuleMyModuleDesc = MyModule description
+
+#
+# Admin page
+#
+MyModuleSetup = MyModule setup
+Settings = Settings
+MyModuleSetupPage = MyModule setup page
+NewSection=New section
+MYMODULE_MYPARAM1 = My param 1
+MYMODULE_MYPARAM1Tooltip = My param 1 tooltip
+MYMODULE_MYPARAM2=My param 2
+MYMODULE_MYPARAM2Tooltip=My param 2 tooltip
+
+
+#
+# About page
+#
+About = About
+MyModuleAbout = About MyModule
+MyModuleAboutPage = MyModule about page
+
+#
+# Sample page
+#
+MyModuleArea = Home MyModule
+MyPageName = My page name
+
+#
+# Sample widget
+#
+MyWidget = My widget
+MyWidgetDescription = My widget description
+
+
+OdaberiteKorisnika=Morate odabrati korisnika
+UnesiteOznaku=Morate unijeti oznaku
+UspjesnoDodano=Oznaka uspješno dodana
+UspjesnoAzurirano=Oznaka uspješno ažurirana
+UspjesnoObrisano=Oznaka uspješno obrisana
+
+Oznake=Oznake
+Tagovi=Tagovi
+Tag=Oznaka
+UnesiNoviTag=Unesi novu oznaku
+DodajTag=Dodaj oznaku
+TagoviHelpText=Unesite naziv nove oznake i pritisnite Dodaj oznaku. Oznake mogu biti korištene za kategorizaciju predmeta i dokumenata.
+
+ID=ID
+Klasa=Klasa
+NazivPredmeta=Naziv predmeta
+Ustanova=Ustanova
+Zaposlenik=Zaposlenik
+DatumOtvaranja=Datum otvaranja
+Actions=Akcije
+ViewDetails=Pregled detalja
+Edit=Uredi
+CloseCase=Zatvori predmet
+NoOpenCases=Nema otvorenih predmeta
+CaseCreatedSuccessfully=Predmet uspješno kreiran
+ConfirmDeleteTag=Yeste li sigurni da zelite obrisati tag?
+TagDeletedSuccessfully=Tag uspješno obrisan
+ErrorTagNotDeleted=Neuspješno brisanje taga
+
+OpenCases=Otvoreni predmeti
+NewCase=Novi predmet
+ShowingCases=Prikazano %d predmeta
+ExportExcel=Izvoz u Excel
+ID=ID
+Klasa=Klasa
+NazivPredmeta=Naziv predmeta
+Ustanova=Ustanova
+Zaposlenik=Zaposlenik
+DatumOtvaranja=Datum otvaranja
+Actions=Akcije
+ViewDetails=Pregled detalja
+Edit=Uredi
+CloseCase=Zatvori predmet
+NoOpenCases=Nema otvorenih predmeta
+
+; seupindex.php translations
+Dokumentiuprilozima=Dokumenti u prilozima
+Aktiiprilozi=Akti i prilozi
+Predpregled=Predpregled
+Štagod=Šta god
+Statističkipodaci=Statistički podaci
+Dobrodošli=Dobrodošli
+OtvoriPredmete=Otvori Predmete
+KreirajPDF=Kreiraj PDF
+
+; novi_predmet.php translations
+Tagovi=Tagovi
+UnesiNoviTag=Unesi novi tag
+DodajTag=Dodaj tag
+TagoviHelpText=Oznake pomažu u kategorizaciji i pretraživanju predmeta
+ExistingTags=Postojeće oznake
+NoTagsAvailable=Nema dostupnih oznaka
+ErrorLoadingTags=Greška pri učitavanju oznaka
+Klasabroj=Klasa broj
+Sadrzaj=Sadržaj
+OdaberiSadrzaj=Odaberi sadržaj
+DosjeBroj=Dosje broj
+OdaberiDosjeBroj=Odaberi dosje broj
+Zaposlenik=Zaposlenik
+Stranka=Stranka
+Oznake=Oznake
+Odaberioznake=Odaberi oznake
+Dodaj=Dodaj
+NazivPredmeta=Naziv predmeta
+DatumOtvaranjaPredmeta=Datum otvaranja predmeta
+OtvoriPredmet=Otvori predmet
+UploadDocument=Dodaj dokument
+ErrorInvalidFileTypeJS=Nevažeći format datoteke!
+ErrorFileTooLarge=Datoteka je prevelika!
+CaseCreatedSuccessfully=Predmet uspješno kreiran
+ErrorTagTooShort=Oznaka mora imati najmanje 2 znaka
+ErrorTagAlreadyExists=Oznaka već postoji
+TagAddedSuccessfully=Oznaka uspješno dodana
+ErrorTagNotAdded=Greška pri dodavanju oznake
+ErrorDatabaseRequest=Greška u zahtjevu baze podataka
+ConfirmDeleteTag=Jeste li sigurni da želite izbrisati ovu oznaku?
+TagDeletedSuccessfully=Oznaka uspješno izbrisana
+ErrorTagNotDeleted=Greška pri brisanju oznake
+ErrorDeletingTagAssociations=Greška pri brisanju povezanih oznaka
+
+
+; predmet.php translations
+UploadaniDokumenti=Uploadani Dokumenti
+
+; predmet_helper.class.php translations
+NoDocumentsFound=Nema Uploadanih Dokumenata
+
+; plan_klasifikacijskih_oznaka translations
+NewClassificationMark=Nova Klasifikacijska Oznaka
+ClassificationMarks=Klasifikacijske Oznake
+ShowingMarks=Prikazano Klasifikacijskih Oznaka
+klasaBr=Klasa broj
+Sadrzaj=Sadrzaj
+dosjeBroj=Dosje broj
+vrijemeCuvanja=Vrijeme Čuvanja
+Opis=Opis
