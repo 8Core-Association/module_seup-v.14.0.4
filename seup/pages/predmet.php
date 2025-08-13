@@ -748,10 +748,20 @@ document.addEventListener('click', function(e) {
         const docId = btn.dataset.docId;
         const filename = btn.dataset.filename;
         
+        console.log('Delete button clicked:', { docId, filename, btn });
+        
+        if (!docId) {
+            console.error('No doc ID found on button:', btn);
+            showMessage('Greška: Nedostaje ID dokumenta', 'error');
+            return;
+        }
+        
         if (confirm(`Jeste li sigurni da želite obrisati dokument "${filename}"?\n\nOva akcija je nepovratna!`)) {
             // Add loading state
             btn.classList.add('seup-loading');
             btn.disabled = true;
+            
+            console.log('Sending delete request for doc ID:', docId);
             
             const formData = new FormData();
             formData.append('action', 'delete_document');
@@ -763,6 +773,7 @@ document.addEventListener('click', function(e) {
             })
             .then(response => response.json())
             .then(data => {
+                console.log('Delete response:', data);
                 if (data.success) {
                     // Remove row from table with animation
                     const row = btn.closest('tr');
@@ -797,7 +808,7 @@ document.addEventListener('click', function(e) {
             })
             .catch(error => {
                 console.error('Delete error:', error);
-                showMessage('Došlo je do greške pri brisanju dokumenta', 'error');
+                showMessage('Došlo je do greške pri brisanju dokumenta: ' + error.message, 'error');
             })
             .finally(() => {
                 btn.classList.remove('seup-loading');
