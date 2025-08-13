@@ -135,8 +135,8 @@ class Predmet_helper
      */
     public static function generateFolderName($klasa_br, $sadrzaj, $dosje_broj, $godina, $predmet_rbr, $naziv_predmeta)
     {
-        // Create klasa format: 001-01/25-01/1
-        $klasa_format = $klasa_br . '-' . $sadrzaj . '/' . $godina . '-' . $dosje_broj . '/' . $predmet_rbr;
+        // Create klasa format: 010-05_25-12_4 (replace / with _ for folder name)
+        $klasa_format = $klasa_br . '-' . $sadrzaj . '_' . $godina . '-' . $dosje_broj . '_' . $predmet_rbr;
         
         // Sanitize naziv_predmeta for folder name
         $sanitized_naziv = self::sanitizeForFolder($naziv_predmeta);
