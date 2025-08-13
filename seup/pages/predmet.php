@@ -89,11 +89,14 @@ if (empty($caseId)) {
 }
 
 // Definiranje direktorija za učitavanje dokumenata
-$relative_path = Predmet_helper::getPredmetFolderPath($caseId, $db);
-$upload_dir = DOL_DATA_ROOT . '/ecm/' . $relative_path;
+$upload_dir = '';
+if ($caseId) {
+    $relative_path = Predmet_helper::getPredmetFolderPath($caseId, $db);
+    $upload_dir = DOL_DATA_ROOT . '/ecm/' . $relative_path;
+}
 
 // Create directory if not exists using new structure
-if (!is_dir($upload_dir)) {
+if ($caseId && !is_dir($upload_dir)) {
     Predmet_helper::createPredmetDirectory($caseId, $db, $conf);
 }
 
