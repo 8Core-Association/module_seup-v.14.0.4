@@ -300,11 +300,15 @@ class Request_Handler
       $ecmfile = new EcmFiles($db);
       
       // Debug: Log the paths being used
-      dol_syslog("handleUploadDocument: relative_path = " . $relative_path, LOG_INFO);
+      dol_syslog("handleUploadDocument: relative_path = " . $relative_path . " (length: " . strlen($relative_path) . ")", LOG_INFO);
       dol_syslog("handleUploadDocument: predmet_dir = " . $predmet_dir, LOG_INFO);
       dol_syslog("handleUploadDocument: filename = " . $filename, LOG_INFO);
       
-      $ecmfile->filepath = $relative_path;
+      // Ensure filepath doesn't end with slash for ECM compatibility
+      $ecm_filepath = rtrim($relative_path, '/');
+      dol_syslog("handleUploadDocument: ecm_filepath = " . $ecm_filepath . " (length: " . strlen($ecm_filepath) . ")", LOG_INFO);
+      
+      $ecmfile->filepath = $ecm_filepath;
       $ecmfile->filename = $filename;
       $ecmfile->label = $filename;
       $ecmfile->entity = $conf->entity;

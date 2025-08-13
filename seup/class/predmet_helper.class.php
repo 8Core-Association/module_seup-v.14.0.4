@@ -385,8 +385,19 @@ class Predmet_helper
         // Get the correct folder path for this predmet
         $relative_path = self::getPredmetFolderPath($caseId, $db);
         
+        // Try both with and without trailing slash for ECM compatibility
+        $search_paths = [
+            rtrim($relative_path, '/'),  // Without trailing slash
+            $relative_path               // With trailing slash (original)
+        ];
+        
         // Debug: Log the path we're searching for
-        dol_syslog("fetchUploadedDocuments: Searching for documents in path: " . $relative_path, LOG_INFO);
+        dol_syslog("fetchUploadedDocuments: Searching for documents in paths: " . implode(', ', $search_paths), LOG_INFO);
+        
+        $sql_conditions = [];
+        foreach ($search_paths as $path) {
+            $sql_conditions[] = "ef.filepath = '" . $db->escape($path) . "'";
+        }
         
         $sql = "SELECT 
                     ef.rowid,
@@ -396,7 +407,7 @@ class Predmet_helper
                     CONCAT(u.firstname, ' ', u.lastname) as created_by
                 FROM " . MAIN_DB_PREFIX . "ecm_files ef
                 LEFT JOIN " . MAIN_DB_PREFIX . "user u ON ef.fk_user_c = u.rowid
-                WHERE ef.filepath = '" . $db->escape($relative_path) . "'
+                WHERE (" . implode(' OR ', $sql_conditions) . ")
                 AND ef.entity = " . $conf->entity . "
                 ORDER BY ef.date_c DESC";
 
