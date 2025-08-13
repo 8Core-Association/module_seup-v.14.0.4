@@ -155,7 +155,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Content-Type: application/json; charset=utf-8');
         
         try {
-            Request_Handler::handleDeleteDocument($db, $conf, $user, $langs);
+            $result = Request_Handler::handleDeleteDocument($db, $conf, $user, $langs);
+            
+            if ($result['success']) {
+                echo json_encode($result);
+            } else {
+                http_response_code(400);
+                echo json_encode($result);
+            }
         } catch (Exception $e) {
             dol_syslog("Error in delete document handler: " . $e->getMessage(), LOG_ERR);
             http_response_code(500);

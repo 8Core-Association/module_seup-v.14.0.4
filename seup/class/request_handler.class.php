@@ -1,8 +1,5 @@
 <?php
 
-require_once '../../../main.inc.php';
-
-
 class Request_Handler
 {
   public static function handleOtvoriPredmet($db, $conf, $user)
@@ -416,7 +413,6 @@ class Request_Handler
    */
   public static function handleDeleteDocument($db, $conf, $user, $langs)
   {
-    // Don't clean buffers here - it's done in predmet.php
     dol_syslog("handleDeleteDocument: Starting deletion process", LOG_INFO);
 
     try {
@@ -487,23 +483,22 @@ class Request_Handler
       $db->commit();
       dol_syslog("handleDeleteDocument: Transaction committed successfully", LOG_INFO);
 
-      echo json_encode([
+      return [
         'success' => true,
         'message' => 'Dokument je uspješno obrisan',
         'file_deleted' => $file_deleted,
         'filename' => $ecmfile->filename
-      ]);
+      ];
 
     } catch (Exception $e) {
       $db->rollback();
       dol_syslog("Error deleting document: " . $e->getMessage(), LOG_ERR);
       dol_syslog("Error deleting document - Stack trace: " . $e->getTraceAsString(), LOG_ERR);
       
-      http_response_code(400);
-      echo json_encode([
+      return [
         'success' => false,
         'error' => $e->getMessage()
-      ]);
+      ];
     }
   }
 }
