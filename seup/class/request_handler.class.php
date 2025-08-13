@@ -5,7 +5,7 @@ require_once '../../../main.inc.php';
 
 class Request_Handler
 {
-  public static function handleOtvoriPredmet($db)
+  public static function handleOtvoriPredmet($db, $conf, $user)
   {
     while (ob_get_level() > 0) {
       ob_end_clean();

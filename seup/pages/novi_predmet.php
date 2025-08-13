@@ -120,7 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   // OTVORI PREDMET
   if (isset($_POST['action']) && $_POST['action'] === 'otvori_predmet') {
-    Request_Handler::handleOtvoriPredmet($db);
+    Request_Handler::handleOtvoriPredmet($db, $conf, $user);
     exit;
   }
 }
