@@ -298,6 +298,12 @@ class Request_Handler
 
       // Create ECM record in database
       $ecmfile = new EcmFiles($db);
+      
+      // Debug: Log the paths being used
+      dol_syslog("handleUploadDocument: relative_path = " . $relative_path, LOG_INFO);
+      dol_syslog("handleUploadDocument: predmet_dir = " . $predmet_dir, LOG_INFO);
+      dol_syslog("handleUploadDocument: filename = " . $filename, LOG_INFO);
+      
       $ecmfile->filepath = $relative_path;
       $ecmfile->filename = $filename;
       $ecmfile->label = $filename;
@@ -312,10 +318,11 @@ class Request_Handler
       // Create the ECM record
       $result = $ecmfile->create($user);
       if ($result < 0) {
+        dol_syslog("handleUploadDocument: ECM creation failed - " . $ecmfile->error, LOG_ERR);
         throw new Exception("ECM creation failed: " . $ecmfile->error);
       }
       
-      dol_syslog("ECM record created successfully for file: " . $filename, LOG_INFO);
+      dol_syslog("handleUploadDocument: ECM record created successfully for file: " . $filename . " with filepath: " . $relative_path, LOG_INFO);
 
       setEventMessages($langs->trans("FileUploadSuccess"), null, 'mesgs');
     } catch (Exception $e) {
