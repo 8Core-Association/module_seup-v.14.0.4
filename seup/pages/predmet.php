@@ -89,11 +89,12 @@ if (empty($caseId)) {
 }
 
 // Definiranje direktorija za učitavanje dokumenata
-$upload_base_dir = DOL_DATA_ROOT . '/ecm/';
-$upload_dir = $upload_base_dir . 'SEUP/predmet_' . $caseId . '/';
-// Create directory if not exists
+$relative_path = Predmet_helper::getPredmetFolderPath($caseId, $db);
+$upload_dir = DOL_DATA_ROOT . '/ecm/' . $relative_path;
+
+// Create directory if not exists using new structure
 if (!is_dir($upload_dir)) {
-    dol_mkdir($upload_dir);
+    Predmet_helper::createPredmetDirectory($caseId, $db, $conf);
 }
 
 dol_syslog("Accessing case details for ID: $caseId", LOG_DEBUG);
