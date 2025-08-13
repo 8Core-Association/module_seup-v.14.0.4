@@ -416,11 +416,8 @@ class Request_Handler
    */
   public static function handleDeleteDocument($db, $conf, $user, $langs)
   {
-    // Clean any output buffer and set JSON header immediately
-    while (ob_get_level() > 0) {
-        ob_end_clean();
-    }
-    header('Content-Type: application/json; charset=utf-8');
+    // Don't clean buffers here - it's done in predmet.php
+    dol_syslog("handleDeleteDocument: Starting deletion process", LOG_INFO);
 
     try {
       $doc_id = GETPOST('doc_id', 'int');
@@ -428,10 +425,12 @@ class Request_Handler
       dol_syslog("handleDeleteDocument: Starting deletion for doc_id = " . $doc_id, LOG_INFO);
       
       if (!$doc_id) {
+        dol_syslog("handleDeleteDocument: Missing document ID", LOG_ERR);
         throw new Exception("Missing document ID");
       }
 
       $db->begin();
+      dol_syslog("handleDeleteDocument: Database transaction started", LOG_INFO);
 
       // Get document details from ECM
       require_once DOL_DOCUMENT_ROOT . '/ecm/class/ecmfiles.class.php';
@@ -439,8 +438,12 @@ class Request_Handler
       
       dol_syslog("handleDeleteDocument: Fetching ECM file with ID " . $doc_id, LOG_INFO);
       
-      if ($ecmfile->fetch($doc_id) <= 0) {
+      $fetch_result = $ecmfile->fetch($doc_id);
+      dol_syslog("handleDeleteDocument: ECM fetch result = " . $fetch_result, LOG_INFO);
+      
+      if ($fetch_result <= 0) {
         dol_syslog("handleDeleteDocument: ECM file not found in database for ID " . $doc_id, LOG_ERR);
+        dol_syslog("handleDeleteDocument: ECM error = " . $ecmfile->error, LOG_ERR);
         throw new Exception("Document not found in database");
       }
 
@@ -451,7 +454,8 @@ class Request_Handler
       $filepath_clean = rtrim($ecmfile->filepath, '/');
       $full_file_path = DOL_DATA_ROOT . '/ecm/' . $filepath_clean . '/' . $ecmfile->filename;
       
-      dol_syslog("Attempting to delete file: " . $full_file_path, LOG_INFO);
+      dol_syslog("handleDeleteDocument: Attempting to delete file: " . $full_file_path, LOG_INFO);
+      dol_syslog("handleDeleteDocument: File exists check: " . (file_exists($full_file_path) ? 'YES' : 'NO'), LOG_INFO);
 
       // Delete physical file
       $file_deleted = false;
@@ -470,7 +474,10 @@ class Request_Handler
 
       // Delete ECM record from database
       dol_syslog("handleDeleteDocument: Deleting ECM record from database", LOG_INFO);
-      if ($ecmfile->delete($user) <= 0) {
+      $delete_result = $ecmfile->delete($user);
+      dol_syslog("handleDeleteDocument: ECM delete result = " . $delete_result, LOG_INFO);
+      
+      if ($delete_result <= 0) {
         dol_syslog("handleDeleteDocument: ECM deletion failed - " . $ecmfile->error, LOG_ERR);
         throw new Exception("Failed to delete document from database: " . $ecmfile->error);
       }
@@ -490,6 +497,7 @@ class Request_Handler
     } catch (Exception $e) {
       $db->rollback();
       dol_syslog("Error deleting document: " . $e->getMessage(), LOG_ERR);
+      dol_syslog("Error deleting document - Stack trace: " . $e->getTraceAsString(), LOG_ERR);
       
       http_response_code(400);
       echo json_encode([
@@ -497,8 +505,5 @@ class Request_Handler
         'error' => $e->getMessage()
       ]);
     }
-    
-    // Force exit to prevent any additional output
-    exit;
   }
 }
