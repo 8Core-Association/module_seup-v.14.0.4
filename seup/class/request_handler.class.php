@@ -296,11 +296,9 @@ class Request_Handler
         throw new Exception($langs->trans("ErrorMovingUploadedFile"));
       }
 
-      // Create ECM record
-      $relativepath = $relative_path;
-
+      // Create ECM record in database
       $ecmfile = new EcmFiles($db);
-      $ecmfile->filepath = $relativepath;
+      $ecmfile->filepath = $relative_path;
       $ecmfile->filename = $filename;
       $ecmfile->label = $filename;
       $ecmfile->entity = $conf->entity;
@@ -308,12 +306,16 @@ class Request_Handler
       $ecmfile->description = 'Document for predmet ' . $caseId;
       $ecmfile->fk_user_c = $user->id;
       $ecmfile->fk_user_m = $user->id;
-      $ecmfile->filetype = dol_mimetype($filename);
-
+      $ecmfile->date_c = dol_now();
+      $ecmfile->date_m = dol_now();
+      
+      // Create the ECM record
       $result = $ecmfile->create($user);
       if ($result < 0) {
-        throw new Exception($ecmfile->error);
+        throw new Exception("ECM creation failed: " . $ecmfile->error);
       }
+      
+      dol_syslog("ECM record created successfully for file: " . $filename, LOG_INFO);
 
       setEventMessages($langs->trans("FileUploadSuccess"), null, 'mesgs');
     } catch (Exception $e) {
