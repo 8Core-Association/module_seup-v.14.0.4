@@ -692,13 +692,18 @@ class Predmet_helper
             }
             $archive_full_path = DOL_DATA_ROOT . '/ecm/' . $archive_path;
 
+            $files_deleted = 0;
             if (is_dir($archive_full_path)) {
+                // Delete all files in archive directory
                 $files = scandir($archive_full_path);
                 foreach ($files as $file) {
                     if ($file !== '.' && $file !== '..') {
-                        unlink($archive_full_path . $file);
+                        if (unlink($archive_full_path . $file)) {
+                            $files_deleted++;
+                        }
                     }
                 }
+                // Remove the directory itself
                 rmdir($archive_full_path);
             }
 
@@ -707,6 +712,22 @@ class Predmet_helper
                     WHERE filepath = '" . $db->escape($archive_path) . "'";
             $db->query($sql);
 
+            // Delete predmet record from a_predmet table
+            $sql = "DELETE FROM " . MAIN_DB_PREFIX . "a_predmet 
+                    WHERE ID_predmeta = " . (int)$arhiva->ID_predmeta;
+            if (!$db->query($sql)) {
+                throw new Exception("Failed to delete predmet record: " . $db->lasterror());
+            }
+
+            // Delete tag associations
+            $sql = "DELETE FROM " . MAIN_DB_PREFIX . "a_predmet_tagovi 
+                    WHERE fk_predmet = " . (int)$arhiva->ID_predmeta;
+            $db->query($sql);
+
+            // Delete stranka associations
+            $sql = "DELETE FROM " . MAIN_DB_PREFIX . "a_predmet_stranka 
+                    WHERE ID_predmeta = " . (int)$arhiva->ID_predmeta;
+            $db->query($sql);
             // Delete archive record
             $sql = "DELETE FROM " . MAIN_DB_PREFIX . "a_arhiva WHERE ID_arhive = " . (int)$arhiva_id;
             if (!$db->query($sql)) {
@@ -716,7 +737,8 @@ class Predmet_helper
             $db->commit();
             return [
                 'success' => true,
-                'message' => 'Arhiva je trajno obrisana'
+                'message' => 'Predmet je trajno obrisan',
+                'files_deleted' => $files_deleted
             ];
 
         } catch (Exception $e) {
