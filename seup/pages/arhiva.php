@@ -688,7 +688,7 @@ document.addEventListener("DOMContentLoaded", function() {
         confirmBtn.classList.add('seup-loading');
         
         const formData = new FormData();
-        formData.append('action', 'delete_archive');
+        formData.append('action', 'restore_predmet');
         formData.append('arhiva_id', currentRestoreId);
         
         fetch('arhiva.php', {
@@ -708,15 +708,15 @@ document.addEventListener("DOMContentLoaded", function() {
                     }, 500);
                 }
                 
-                showMessage('Arhiva je trajno obrisana!', 'success');
+                showMessage(`Predmet uspješno vraćen! Premješteno ${data.files_moved} dokumenata.`, 'success');
                 closeRestoreModal();
             } else {
-                showMessage('Greška pri brisanju: ' + data.error, 'error');
+                showMessage('Greška pri vraćanju: ' + data.error, 'error');
             }
         })
         .catch(error => {
-            console.error('Delete error:', error);
-            showMessage('Došlo je do greške pri brisanju', 'error');
+            console.error('Restore error:', error);
+            showMessage('Došlo je do greške pri vraćanju', 'error');
         })
         .finally(() => {
             confirmBtn.classList.remove('seup-loading');
