@@ -186,7 +186,7 @@ class Request_Handler
     // Uzmi podatke o ID-u predmeta iz POST zahtjeva
     $caseId = GETPOST('case_id', 'int');
     
-    // Get the correct folder path for this predmet
+    // Use the new folder structure
     $relative_path = Predmet_helper::getPredmetFolderPath($caseId, $db);
     $predmet_dir = DOL_DATA_ROOT . '/ecm/' . $relative_path;
     
