@@ -422,6 +422,8 @@ class Request_Handler
     try {
       $doc_id = GETPOST('doc_id', 'int');
       
+      dol_syslog("handleDeleteDocument: Starting deletion for doc_id = " . $doc_id, LOG_INFO);
+      
       if (!$doc_id) {
         throw new Exception("Missing document ID");
       }
@@ -432,12 +434,19 @@ class Request_Handler
       require_once DOL_DOCUMENT_ROOT . '/ecm/class/ecmfiles.class.php';
       $ecmfile = new EcmFiles($db);
       
+      dol_syslog("handleDeleteDocument: Fetching ECM file with ID " . $doc_id, LOG_INFO);
+      
       if ($ecmfile->fetch($doc_id) <= 0) {
+        dol_syslog("handleDeleteDocument: ECM file not found in database for ID " . $doc_id, LOG_ERR);
         throw new Exception("Document not found in database");
       }
 
+      dol_syslog("handleDeleteDocument: Found ECM file - filepath: " . $ecmfile->filepath . ", filename: " . $ecmfile->filename, LOG_INFO);
+      
       // Build full file path
-      $full_file_path = DOL_DATA_ROOT . '/ecm/' . $ecmfile->filepath . '/' . $ecmfile->filename;
+      // Handle both with and without trailing slash
+      $filepath_clean = rtrim($ecmfile->filepath, '/');
+      $full_file_path = DOL_DATA_ROOT . '/ecm/' . $filepath_clean . '/' . $ecmfile->filename;
       
       dol_syslog("Attempting to delete file: " . $full_file_path, LOG_INFO);
 
@@ -457,11 +466,16 @@ class Request_Handler
       }
 
       // Delete ECM record from database
+      dol_syslog("handleDeleteDocument: Deleting ECM record from database", LOG_INFO);
       if ($ecmfile->delete($user) <= 0) {
+        dol_syslog("handleDeleteDocument: ECM deletion failed - " . $ecmfile->error, LOG_ERR);
         throw new Exception("Failed to delete document from database: " . $ecmfile->error);
       }
+      
+      dol_syslog("handleDeleteDocument: ECM record deleted successfully", LOG_INFO);
 
       $db->commit();
+      dol_syslog("handleDeleteDocument: Transaction committed successfully", LOG_INFO);
 
       echo json_encode([
         'success' => true,
