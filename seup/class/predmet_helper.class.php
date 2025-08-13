@@ -392,7 +392,6 @@ class Predmet_helper
                     ef.rowid,
                     ef.filename,
                     ef.filepath,
-                    ef.filesize,
                     ef.date_c,
                     CONCAT(u.firstname, ' ', u.lastname) as created_by
                 FROM " . MAIN_DB_PREFIX . "ecm_files ef
@@ -436,7 +435,7 @@ class Predmet_helper
                 
                 $documentTableHTML .= '<tr>';
                 $documentTableHTML .= '<td>' . htmlspecialchars($doc->filename) . '</td>';
-                $documentTableHTML .= '<td>' . dol_print_size($doc->filesize) . '</td>';
+                $documentTableHTML .= '<td>N/A</td>';
                 $documentTableHTML .= '<td>' . dol_print_date($doc->date_c, 'dayhour') . '</td>';
                 $documentTableHTML .= '<td>' . htmlspecialchars($doc->created_by ?: 'N/A') . '</td>';
                 $documentTableHTML .= '<td>';
