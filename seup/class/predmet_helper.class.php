@@ -207,7 +207,7 @@ class Predmet_helper
                 $obj->naziv_predmeta
             );
             
-            return 'SEUP/Predmeti/Predmet/' . $folder_name . '/';
+            return 'SEUP/Predmeti/' . $folder_name . '/';
         }
         
         // Fallback to old format if predmet not found
