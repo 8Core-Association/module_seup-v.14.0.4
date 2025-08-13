@@ -110,6 +110,7 @@ class Predmet_helper
                 ID_predmeta int(11) NOT NULL,
                 klasa_predmeta varchar(50) NOT NULL,
                 naziv_predmeta text NOT NULL,
+                lokacija_arhive varchar(500) NOT NULL,
                 broj_dokumenata int(11) DEFAULT 0,
                 razlog_arhiviranja text,
                 datum_arhiviranja timestamp DEFAULT CURRENT_TIMESTAMP,
@@ -466,6 +467,16 @@ class Predmet_helper
                      $predmet->godina . '-' . $predmet->dosje_broj . '/' . 
                      $predmet->predmet_rbr;
 
+            // Generate archive location
+            $archive_location = 'ecm/SEUP/Arhiva/' . self::generateFolderName(
+                $predmet->klasa_br,
+                $predmet->sadrzaj,
+                $predmet->dosje_broj,
+                $predmet->godina,
+                $predmet->predmet_rbr,
+                $predmet->naziv_predmeta
+            ) . '/';
+
             // Count documents
             $current_path = self::getPredmetFolderPath($predmet_id, $db);
             $sql = "SELECT COUNT(*) as count FROM " . MAIN_DB_PREFIX . "ecm_files 
@@ -478,12 +489,13 @@ class Predmet_helper
 
             // Create archive record
             $sql = "INSERT INTO " . MAIN_DB_PREFIX . "a_arhiva (
-                        ID_predmeta, klasa_predmeta, naziv_predmeta, broj_dokumenata,
+                        ID_predmeta, klasa_predmeta, naziv_predmeta, lokacija_arhive, broj_dokumenata,
                         razlog_arhiviranja, fk_user_arhivirao
                     ) VALUES (
                         " . (int)$predmet_id . ",
                         '" . $db->escape($klasa) . "',
                         '" . $db->escape($predmet->naziv_predmeta) . "',
+                        '" . $db->escape($archive_location) . "',
                         " . (int)$doc_count . ",
                         '" . $db->escape($razlog) . "',
                         " . (int)$user->id . "
@@ -494,7 +506,14 @@ class Predmet_helper
             }
 
             // Move documents to archive folder
-            $archive_path = 'SEUP/Arhiva/' . $klasa . '/';
+            $archive_path = 'SEUP/Arhiva/' . self::generateFolderName(
+                $predmet->klasa_br,
+                $predmet->sadrzaj,
+                $predmet->dosje_broj,
+                $predmet->godina,
+                $predmet->predmet_rbr,
+                $predmet->naziv_predmeta
+            ) . '/';
             $current_full_path = DOL_DATA_ROOT . '/ecm/' . $current_path;
             $archive_full_path = DOL_DATA_ROOT . '/ecm/' . $archive_path;
 
